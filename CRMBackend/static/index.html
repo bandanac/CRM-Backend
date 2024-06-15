@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRM Backend</title>
+  </head>
+  <body>
+    <h1>Following are all the CRUD operations included</h1>
+    <h2>Get all customers</h2>
+    <ul>
+      <li><h3>[GET] http://localhost:3000/customer</h3></li>
+      <p style="color:green">- Display all the customers.</p>
+    </ul>
+    <h2>Get a single customer through id</h2>
+    <ul>
+      <li><h3>[GET] http://localhost:3000/customer/1</h3></li>
+      <p style="color:green">- Display customer having ID 1.</p>
+      <li><h3>[GET] http://localhost:3000/customer/11</h3></li>
+      <p style="color:red">- Display an error as user doesn't exists.</p>
+    </ul>
+    <h2>Add a customer</h2>
+    <ul>
+      <li><h3>[POST] http://localhost:3000/customer</h3></li>
+      <p>
+        {"6": {
+	        "id": "6",
+	        "name": "Faith Bell",
+	        "role": "Cloud Computing",
+	        "email": "faith_bell@xyz.com",
+	        "phone": "+49-7001-3206000",
+	        "contacted": true
+	    }}
+      </p>
+      <p style="color:green">- Add the customer.</p>
+      <li><h3>[POST] http://localhost:3000/customer</h3></li>
+      <p>
+        {"1": {
+		    "id": "1",
+	    	"name": "Aria Bell",
+	    	"role": "Frontend Engineer",
+	    	"email": "aria_bell@xyz.com",
+	    	"phone": "+49-7001-3206995",
+	    	"contacted": true
+	    }}
+      </p>
+      <p style="color:red">- Display an error as user already exists.</p>
+    </ul>
+    <h2>Update a customer</h2>
+    <ul>
+      <li><h3>[PUT] http://localhost:3000/customer/6</h3></li>
+      <p>
+        {"6": {
+	        "id": "6",
+	        "name": "Faith Bell",
+	        "role": "Mobile Developer",
+	        "email": "faith_bell@xyz.com",
+	        "phone": "+49-7001-3206111",
+	        "contacted": false
+	    }}
+      </p>
+      <p style="color:green">- Display the updated customer having ID 6.</p>
+      <li><h3>[PUT] http://localhost:3000/customer/11</h3></li>
+      <p style="color:red">- Display an error as user doesn't exists.</p>
+    </ul>
+    <h2>Delete a customer</h2>
+    <ul>
+      <li><h3>[DELETE] http://localhost:3000/customer/1</h3></li>
+      <p style="color:green">- Delete the customer having ID 1</p>
+      <li><h3>[DELETE] http://localhost:3000/customer/11</h3></li>
+      <p style="color:red">- Display an error as user doesn't exists.</p>
+    </ul>
+  </body>
+</html>

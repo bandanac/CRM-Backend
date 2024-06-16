@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -20,40 +21,40 @@ type Customer struct {
 
 var totalCustomers int = 5
 var customers = map[string]Customer{
-	"1": {
-		ID:        "1",
+	"8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad": {
+		ID:        "8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad",
 		Name:      "Aria Bell",
 		Role:      "Frontend Engineer",
 		Email:     "aria_bell@xyz.com",
 		Phone:     "+49-7001-3206995",
 		Contacted: true,
 	},
-	"2": {
-		ID:        "2",
+	"bc322825-8be4-406f-b79e-63c993750e7d": {
+		ID:        "bc322825-8be4-406f-b79e-63c993750e7d",
 		Name:      "Blake Miller",
 		Role:      "Backend Engineer",
 		Email:     "blake_miller@xyz.com",
 		Phone:     "+49-4313-7492708",
 		Contacted: true,
 	},
-	"3": {
-		ID:        "3",
+	"eecb15b3-495d-4977-9801-56cdd93add94": {
+		ID:        "eecb15b3-495d-4977-9801-56cdd93add94",
 		Name:      "Caroline Sanders",
 		Role:      "Full stack Engineer",
 		Email:     "caroline_sanders@xyz.com",
 		Phone:     "+49-2977-8324914",
 		Contacted: false,
 	},
-	"4": {
-		ID:        "4",
+	"4d48cb8d-45ac-4035-ac1c-cd31f7e05b3c": {
+		ID:        "4d48cb8d-45ac-4035-ac1c-cd31f7e05b3c",
 		Name:      "Dahlia Martin",
 		Role:      "Mobile Developer",
 		Email:     "dahlia_martin@xyz.com",
 		Phone:     "+49-6858-4638667",
 		Contacted: false,
 	},
-	"5": {
-		ID:        "5",
+	"d145860c-977c-4466-9a01-b285b2070e00": {
+		ID:        "d145860c-977c-4466-9a01-b285b2070e00",
 		Name:      "Ella Walker",
 		Role:      "Frontend Engineer",
 		Email:     "ella_walker@xyz.com",
@@ -84,21 +85,24 @@ func getCustomer(w http.ResponseWriter, r *http.Request) {
 
 func addCustomer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var newEntry map[string]Customer
+
+	var newEntry Customer
+
+	if _, ok := customers[mux.Vars(r)["id"]]; ok {
+		w.WriteHeader(http.StatusConflict) // 409 Conflict
+		w.Write([]byte("409 - Customer already exists!"))
+		return
+	}
+
 	requestBody, _ := io.ReadAll(r.Body)
 	json.Unmarshal(requestBody, &newEntry)
 
-	for k, v := range newEntry {
-		if _, ok := customers[k]; ok {
-			w.WriteHeader(http.StatusConflict) // 409 Conflict
-			w.Write([]byte("409 - Customer already exists!"))
-			json.NewEncoder(w).Encode(customers[k])
-		} else {
-			customers[k] = v
-			w.WriteHeader(http.StatusCreated) // 201 Created
-			json.NewEncoder(w).Encode(customers[k])
-		}
-	}
+	id := uuid.New().String()
+	newEntry.ID = id
+	customers[id] = newEntry
+
+	w.WriteHeader(http.StatusCreated) // 201 Created
+	json.NewEncoder(w).Encode(newEntry)
 }
 
 func updateCustomer(w http.ResponseWriter, r *http.Request) {
@@ -146,41 +150,39 @@ func main() {
 
 	// Get a single customer through id
 	router.HandleFunc("/customer/{id}", getCustomer).Methods("GET")
-	// GET - http://localhost:3000/customer/1 (success) - existing user
-	// GET - http://localhost:3000/customer/11 (error) - non existing user
+	// GET - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad (success) - existing user
+	// GET - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d600 (error) - non existing user
 
 	// Add a customer
 	router.HandleFunc("/customer", addCustomer).Methods("POST")
-	// POST - http://localhost:3000/customer (error) - existing user
 	// POST - http://localhost:3000/customer (success) - non existing user
 
-	// {"6": {
-	//     "id": "6",
-	//     "name": "Faith Bell",
-	//     "role": "Cloud Computing",
-	//     "email": "faith_bell@xyz.com",
-	//     "phone": "+49-7001-3206000",
-	//     "contacted": true
-	// }}
+	// {
+	// 	"name": "Faith Bell",
+	// 	"role": "Cloud Engineer",
+	// 	"email": "faith_bell@xyz.com",
+	// 	"phone": "+49-6858-4638667",
+	// 	"contacted": true
+	// }
 
 	// Update a customer
 	router.HandleFunc("/customer/{id}", updateCustomer).Methods("PUT")
-	// PUT - http://localhost:3000/customer/11 (error) - non existing user
-	// PUT - http://localhost:3000/customer/6 (success) - existing user
+	// PUT - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d600 (error) - non existing user
+	// PUT - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad (success) - existing user
 
-	// {"6": {
-	//     "id": "6",
-	//     "name": "Faith Bell",
+	// {"8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad": {
+	//     "id": "8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad",
+	//     "name": "Aria Bell",
 	//     "role": "Mobile Developer",
-	//     "email": "faith_bell@xyz.com",
+	//     "email": "aria_bell@xyz.com",
 	//     "phone": "+49-7001-3206111",
 	//     "contacted": false
 	// }}
 
 	// Delete a customer
 	router.HandleFunc("/customer/{id}", deleteCustomer).Methods("DELETE")
-	// DELETE - http://localhost:3000/customer/1 (success) - existing user
-	// DELETE - http://localhost:3000/customer/11 (error) - non existing user
+	// DELETE - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d6ad (success) - existing user
+	// DELETE - http://localhost:3000/customer/8f1f4cb1-aff0-4094-9398-bbf2dc89d600 (error) - non existing user
 
 	fmt.Println("Server is starting on port 3000...")
 	http.ListenAndServe(":3000", router)

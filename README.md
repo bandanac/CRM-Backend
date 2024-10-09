@@ -7,10 +7,11 @@ The project represents the backend of a customer relationship management (CRM) w
 - Updating a customer's information
 - Removing a customer
 
+<h2>Environments</h2>
+- Visual Studio Code
+- Postman
+
 <h2>Import the third-party gorilla/mux package</h2>
-
-Steps:-
-
 - go mod init github.com/gorilla/muxv1.8.1
 - go mod tidy
 - restart VSCode
